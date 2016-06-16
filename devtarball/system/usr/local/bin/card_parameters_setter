@@ -1,0 +1,30 @@
+#!/bin/bash
+
+PACMD_BASE_CMD="pacmd update-sink-proplist 0"
+
+PORT=${PORT:-9999}
+
+function card_parameters_setter_server () {
+	while true; do
+		read line
+		pacmd_cmd=""
+
+		for KVPairs in ${line//;/ }; do
+			pacmd_cmd="$pacmd_cmd droid.card_parameter.${KVPairs}"
+		done
+
+		[ -n "$DEBUG" ] && echo "$PACMD_BASE_CMD$pacmd_cmd" >&2
+		$PACMD_BASE_CMD$pacmd_cmd
+
+		if echo "$line"|grep -q -e vsid -e call_state; then
+			#Reset these parameters to sane state in Pulseaudio
+			$PACMD_BASE_CMD droid.card_parameter.vsid=0 droid.card_parameter.call_state=0
+		fi
+	done
+}
+
+coproc server { card_parameters_setter_server; }
+
+nc -l -k 127.0.0.1 $PORT <&${server[0]} >&${server[1]}
+	
+done
