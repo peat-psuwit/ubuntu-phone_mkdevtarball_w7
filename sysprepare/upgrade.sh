@@ -19,7 +19,7 @@ fi
 
 adb shell "mkdir -p /cache/system/"
 adb shell "[ -f /data/system.img ] || mount /data"
-adb shell "[ -f /data/system.img ] && mount -o loop /data/system.img /cache/system || mount /dev/block/platform/msm_sdcc.1/by-name/system /cache/system"
+adb shell "[ -f /data/system.img ] && mount -o loop,discard /data/system.img /cache/system || mount -o discard /dev/block/platform/msm_sdcc.1/by-name/system /cache/system"
 adb shell "rm $ANDROID_SYSIMG_PATH"
 adb push system.img "$ANDROID_SYSIMG_PATH"
 adb shell "umount /cache/system"
